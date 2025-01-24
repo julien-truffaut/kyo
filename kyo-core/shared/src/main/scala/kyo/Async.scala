@@ -66,6 +66,29 @@ object Async:
     inline def apply[A, S](inline v: => A < S)(using inline frame: Frame): A < (Async & S) =
         IO(v)
 
+    def test =
+        given Frame = Frame.internal
+        // given i: Scope.Stateful[Emit[Int]] = ???
+        // given s: Scope.Isolate[Emit[String]] = ???
+        // Scope.Contextual.derive[Env[Int]]
+        val x = Async.run2(Async.run2(1: Int < (Env[Int])))
+    end test
+
+    def run2[E, A: Flat, S](v: => A < (Abort[E] & Async & S))(
+        using
+        frame: Frame,
+        scope: Scope.Contextual[Abort[E] & Async, S]
+    ): Fiber[E, A] < (IO & S) =
+        // val x: A < (Abort[E] & Join & (IO & S)) =
+        //     scope.use { state =>
+        //         scope.resume(state, v)
+        //             .map { (state, v) =>
+        //                 scope.restore(state, v)
+        //             }
+        //     }
+        ???
+    end run2
+
     /** Runs an asynchronous computation and returns a Fiber.
       *
       * @param v
